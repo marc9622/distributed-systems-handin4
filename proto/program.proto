@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package = "github.com/marc9622/distributed-systems-handin4/proto";
+
+package proto;
+
+service Program {
+    rpc RepeatMessage (Message) returns (Message);
+}
+
+message Message {
+    string message = 1;
+}
