@@ -21,18 +21,18 @@ type Node struct {
     Port     uint
     hasToken chan struct{}
     allNodes []uint
+    debug    bool
 }
 
 func (node *Node) GiveToken(ctx context.Context, _ *pb.Empty) (*pb.Empty, error) {
-    //log.Printf("Received token at port %d\n", node.Port)
-    select {
-    case node.hasToken <- struct{}{}:
-    default:
+    if node.debug {
+        log.Printf("Received token at port %d\n", node.Port)
     }
+    node.hasToken <- struct{}{}
     return &pb.Empty{}, nil
 }
 
-func Spawn(port uint, startsWithToken bool, allNodes []uint) {
+func Spawn(port uint, startsWithToken bool, allNodes []uint, debug bool) {
     if len(allNodes) <= 1 {
         log.Fatalf("No nodes to connect to")
     }
@@ -41,6 +41,7 @@ func Spawn(port uint, startsWithToken bool, allNodes []uint) {
         Port: port,
         hasToken: make(chan struct{}),
         allNodes: allNodes,
+        debug: debug,
     }
 
     // Setting up gRPC server
@@ -71,18 +72,22 @@ func Spawn(port uint, startsWithToken bool, allNodes []uint) {
     go func() {
         go func() {
             if startsWithToken {
-                select {
-                case node.hasToken <- struct{}{}:
-                //default:
-                }
+                node.hasToken <- struct{}{}
             }
         }()
 
         var opt = grpc.WithTransportCredentials(insecure.NewCredentials())
 
-        var conn, connErr = grpc.Dial(fmt.Sprintf("localhost:%d", nextPort), opt)
-        if connErr != nil {
-            log.Panicf("Failed to dial server: %s", connErr)
+        var conn *grpc.ClientConn
+        for {
+            var connAttempt, connErr = grpc.Dial(fmt.Sprintf("localhost:%d", nextPort), opt)
+            if connErr != nil {
+                log.Panicf("Failed to dial server: %s trying again in 3 seconds", connErr)
+                time.Sleep(3 * time.Second)
+                continue
+            }
+            conn = connAttempt
+            break
         }
         defer conn.Close()
 
@@ -95,12 +100,23 @@ func Spawn(port uint, startsWithToken bool, allNodes []uint) {
         for {
             <- node.hasToken
 
-            node.useToken()
+            if rand.Int() % 2 == 0 {
+                node.useToken()
+            } else {
+                // We didn't need the token
+            }
 
-            //log.Printf("Sending token from port %d to port %d\n", port, nextPort)
-            var _, giveErr = client.GiveToken(ctx, &pb.Empty{})
-            if giveErr != nil {
-                log.Panicf("Failed to give token: %s", giveErr)
+            if node.debug {
+                log.Printf("Sending token from port %d to port %d\n", port, nextPort)
+            }
+            for {
+                var _, giveErr = client.GiveToken(ctx, &pb.Empty{})
+                if giveErr != nil {
+                    log.Printf("Failed to give token trying again in 3 seconds: %s", giveErr)
+                    time.Sleep(3 * time.Second)
+                    continue
+                }
+                break
             }
         }
     }()
