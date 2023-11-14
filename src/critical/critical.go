@@ -1,32 +1,30 @@
 package critical
 
 import (
-	"fmt"
+	"log"
 	"os"
-
-	node "github.com/marc9622/distributed-systems-handin4/src/node"
 )
 
 var currentNode uint
 var occupied bool
 
-func EnterCriticalSection(node *node.Node) {
+func EnterCriticalSection(id uint) {
     if !occupied {
-        currentNode = node.Id
+        currentNode = id
         occupied = true
-        fmt.Printf(">>> Node %d entered critical section.\n", node.Id)
+        log.Printf(">>> Node %d entered critical section.\n", id)
     } else {
-        fmt.Printf("!!! Node %d tried to enter critical section, but it is already occupied by node %d.\n", node.Id, currentNode)
+        log.Printf("!!! Node %d tried to enter critical section, but it is already occupied by node %d.\n", id, currentNode)
         os.Exit(1)
     }
 }
 
-func LeaveCriticalSection(node *node.Node) {
+func LeaveCriticalSection(id uint) {
     if occupied {
         occupied = false
-        fmt.Printf("<<< Node %d left critical section.\n", node.Id)
+        log.Printf("<<< Node %d left critical section.\n", id)
     } else {
-        fmt.Printf("!!! Node %d tried to leave critical section, but was not occupying it.\n", node.Id)
+        log.Printf("!!! Node %d tried to leave critical section, but was not occupying it.\n", id)
         os.Exit(1)
     }
 }
