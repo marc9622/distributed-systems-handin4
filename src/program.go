@@ -1,16 +1,20 @@
 package main
 
 import (
-	"time"
+	"bufio"
+	"os"
 
-	node    "github.com/marc9622/distributed-systems-handin4/src/node"
+	node "github.com/marc9622/distributed-systems-handin4/src/node"
 )
 
 func main() {
-    node.Spawn("8080", true,  []uint{0})
-    node.Spawn("8080", false, []uint{0})
-    node.Spawn("8080", false, []uint{0})
+    var ports = []uint{1111,2222,3333}
 
-    time.Sleep(1 * time.Second)
+    for i, port := range ports {
+        node.Spawn(port, i == 0, ports)
+    }
+
+    var scanner = bufio.NewScanner(os.Stdin)
+    scanner.Scan()
 }
 

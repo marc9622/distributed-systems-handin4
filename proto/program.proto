@@ -4,10 +4,9 @@ option go_package = "github.com/marc9622/distributed-systems-handin4/proto";
 
 package proto;
 
-service Program {
-    rpc RepeatMessage (Message) returns (Message);
+service TokenRing {
+    rpc GiveToken (Empty) returns (Empty);
 }
 
-message Message {
-    string message = 1;
-}
+message Empty {}
+

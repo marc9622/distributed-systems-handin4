@@ -19,89 +19,89 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Program_RepeatMessage_FullMethodName = "/proto.Program/RepeatMessage"
+	TokenRing_GiveToken_FullMethodName = "/proto.TokenRing/GiveToken"
 )
 
-// ProgramClient is the client API for Program service.
+// TokenRingClient is the client API for TokenRing service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ProgramClient interface {
-	RepeatMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
+type TokenRingClient interface {
+	GiveToken(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 }
 
-type programClient struct {
+type tokenRingClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewProgramClient(cc grpc.ClientConnInterface) ProgramClient {
-	return &programClient{cc}
+func NewTokenRingClient(cc grpc.ClientConnInterface) TokenRingClient {
+	return &tokenRingClient{cc}
 }
 
-func (c *programClient) RepeatMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error) {
-	out := new(Message)
-	err := c.cc.Invoke(ctx, Program_RepeatMessage_FullMethodName, in, out, opts...)
+func (c *tokenRingClient) GiveToken(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, TokenRing_GiveToken_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ProgramServer is the server API for Program service.
-// All implementations must embed UnimplementedProgramServer
+// TokenRingServer is the server API for TokenRing service.
+// All implementations must embed UnimplementedTokenRingServer
 // for forward compatibility
-type ProgramServer interface {
-	RepeatMessage(context.Context, *Message) (*Message, error)
-	mustEmbedUnimplementedProgramServer()
+type TokenRingServer interface {
+	GiveToken(context.Context, *Empty) (*Empty, error)
+	mustEmbedUnimplementedTokenRingServer()
 }
 
-// UnimplementedProgramServer must be embedded to have forward compatible implementations.
-type UnimplementedProgramServer struct {
+// UnimplementedTokenRingServer must be embedded to have forward compatible implementations.
+type UnimplementedTokenRingServer struct {
 }
 
-func (UnimplementedProgramServer) RepeatMessage(context.Context, *Message) (*Message, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RepeatMessage not implemented")
+func (UnimplementedTokenRingServer) GiveToken(context.Context, *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GiveToken not implemented")
 }
-func (UnimplementedProgramServer) mustEmbedUnimplementedProgramServer() {}
+func (UnimplementedTokenRingServer) mustEmbedUnimplementedTokenRingServer() {}
 
-// UnsafeProgramServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ProgramServer will
+// UnsafeTokenRingServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TokenRingServer will
 // result in compilation errors.
-type UnsafeProgramServer interface {
-	mustEmbedUnimplementedProgramServer()
+type UnsafeTokenRingServer interface {
+	mustEmbedUnimplementedTokenRingServer()
 }
 
-func RegisterProgramServer(s grpc.ServiceRegistrar, srv ProgramServer) {
-	s.RegisterService(&Program_ServiceDesc, srv)
+func RegisterTokenRingServer(s grpc.ServiceRegistrar, srv TokenRingServer) {
+	s.RegisterService(&TokenRing_ServiceDesc, srv)
 }
 
-func _Program_RepeatMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Message)
+func _TokenRing_GiveToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProgramServer).RepeatMessage(ctx, in)
+		return srv.(TokenRingServer).GiveToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Program_RepeatMessage_FullMethodName,
+		FullMethod: TokenRing_GiveToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProgramServer).RepeatMessage(ctx, req.(*Message))
+		return srv.(TokenRingServer).GiveToken(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Program_ServiceDesc is the grpc.ServiceDesc for Program service.
+// TokenRing_ServiceDesc is the grpc.ServiceDesc for TokenRing service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Program_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Program",
-	HandlerType: (*ProgramServer)(nil),
+var TokenRing_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.TokenRing",
+	HandlerType: (*TokenRingServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "RepeatMessage",
-			Handler:    _Program_RepeatMessage_Handler,
+			MethodName: "GiveToken",
+			Handler:    _TokenRing_GiveToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
