@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-    var port = flag.Uint("port", 0, "The port of this process")
-    var first = flag.Bool("first", false, "Whether this process starts with the token")
+    var port = flag.Uint("port", 0, "The port of this node")
+    var first = flag.Bool("first", false, "Whether this node starts with the token")
     var debug = flag.Bool("debug", false, "Enable debug logging")
     var file = flag.String("file", "", "The file which the critical section writes to")
     flag.Parse()
