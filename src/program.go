@@ -18,6 +18,8 @@ func main() {
 
             critical.EnterCriticalSection(&node)
 
+            time.Sleep(100 * time.Millisecond)
+
             critical.LeaveCriticalSection(&node)
         }()
     }
