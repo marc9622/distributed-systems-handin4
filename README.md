@@ -37,5 +37,5 @@ Example:
 
 ```bin/program  -debug  -port 4444  -file "./log"  1111 2222 3333 4444```
 
-Node that each process will write an error if the server of the following node has not been started yet,
+Note that each process will write an error if the server of the following node has not been started yet,
 but it will keep trying every 3 seconds, so it can simply be ignored.
