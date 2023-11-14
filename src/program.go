@@ -14,7 +14,7 @@ func main() {
 
     for i := 1; i <= 3; i++ {
         go func() {
-            var node = node.Node{ Id: uint(rand.Uint32()) }
+            var node = node.Node{ Id: uint(rand.Uint32() % 100) }
 
             critical.EnterCriticalSection(&node)
 
