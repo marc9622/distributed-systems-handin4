@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"math/rand"
 	"net"
+	"time"
 
 	critical "github.com/marc9622/distributed-systems-handin4/src/critical"
 
@@ -22,7 +24,7 @@ type Node struct {
 }
 
 func (node *Node) GiveToken(ctx context.Context, _ *pb.Empty) (*pb.Empty, error) {
-    log.Printf("Received token at port %d\n", node.Port)
+    //log.Printf("Received token at port %d\n", node.Port)
     select {
     case node.hasToken <- struct{}{}:
     default:
@@ -73,10 +75,6 @@ func Spawn(port uint, startsWithToken bool, allNodes []uint) {
                 case node.hasToken <- struct{}{}:
                 //default:
                 }
-
-                log.Print(len(node.hasToken))
-
-                log.Printf("Sending initial token to port %d\n", port)
             }
         }()
 
@@ -95,12 +93,11 @@ func Spawn(port uint, startsWithToken bool, allNodes []uint) {
         log.Printf("Running client at port %d\n", port);
 
         for {
-            log.Printf("Waiting for token at port %d\n", port)
             <- node.hasToken
 
             node.useToken()
 
-            log.Printf("Sending token from port %d\n", port)
+            //log.Printf("Sending token from port %d to port %d\n", port, nextPort)
             var _, giveErr = client.GiveToken(ctx, &pb.Empty{})
             if giveErr != nil {
                 log.Panicf("Failed to give token: %s", giveErr)
@@ -133,8 +130,9 @@ func findNextPort(port uint, allNodes []uint) uint {
 }
 
 func (node *Node) useToken() {
-    log.Printf("Using token at port %d\n", node.Port)
     critical.EnterCriticalSection(node.Port)
+
+    time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
 
     critical.LeaveCriticalSection(node.Port)
 }
