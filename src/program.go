@@ -14,10 +14,14 @@ func main() {
     var port = flag.Uint("port", 0, "Port to listen on")
     var first = flag.Bool("first", false, "This node starts with the token")
     var debug = flag.Bool("debug", false, "Enable debug logging")
+    var file = flag.String("file", "", "File to read ports from")
     flag.Parse()
 
     if *port == 0 {
         log.Fatal("Port must be specified with -port")
+    }
+    if *file == "" {
+        log.Fatal("File must be specified with -file")
     }
 
     var ports = []uint{}
@@ -34,7 +38,7 @@ func main() {
         }
     }
 
-    node.Spawn(*port, *first, ports, *debug)
+    node.Spawn(*port, *first, ports, *debug, *file)
 
     var scanner = bufio.NewScanner(os.Stdin)
     scanner.Scan()

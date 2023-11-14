@@ -1,31 +1,34 @@
 package critical
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"os"
 )
 
-var currentNode uint
-var occupied bool
+var fd *os.File
+var writer *bufio.Writer
 
-func EnterCriticalSection(id uint) {
-    if !occupied {
-        currentNode = id
-        occupied = true
-        log.Printf(">>> Node %d entered critical section.\n", id)
-    } else {
-        log.Printf("!!! Node %d tried to enter critical section, but it is already occupied by node %d.\n", id, currentNode)
-        os.Exit(1)
+func EnterCriticalSection(id uint, file string) {
+    var f, err = os.OpenFile(file, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+    if err != nil {
+        log.Fatalf("!!! Node %d failed to open file %s: %v\n", id, file, err)
     }
+    fd = f
+
+    writer = bufio.NewWriter(f)
+    writer.WriteString(fmt.Sprintf(">>> Node %d entered critical section.\n", id))
+    writer.Flush()
 }
 
 func LeaveCriticalSection(id uint) {
-    if occupied {
-        occupied = false
-        log.Printf("<<< Node %d left critical section.\n", id)
-    } else {
-        log.Printf("!!! Node %d tried to leave critical section, but was not occupying it.\n", id)
-        os.Exit(1)
+    writer.WriteString(fmt.Sprintf("<<< Node %d left critical section.\n", id))
+    writer.Flush()
+
+    var err = fd.Close()
+    if err != nil {
+        log.Fatalf("!!! Node %d failed to close file: %v\n", id, err)
     }
 }
 

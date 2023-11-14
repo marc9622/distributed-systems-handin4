@@ -18,30 +18,32 @@ import (
 
 type Node struct {
     pb.UnimplementedTokenRingServer
-    Port     uint
+    port     uint
     hasToken chan struct{}
     allNodes []uint
     debug    bool
+    file     string
 }
 
 func (node *Node) GiveToken(ctx context.Context, _ *pb.Empty) (*pb.Empty, error) {
     if node.debug {
-        log.Printf("Received token at port %d\n", node.Port)
+        log.Printf("Received token at port %d\n", node.port)
     }
     node.hasToken <- struct{}{}
     return &pb.Empty{}, nil
 }
 
-func Spawn(port uint, startsWithToken bool, allNodes []uint, debug bool) {
+func Spawn(port uint, startsWithToken bool, allNodes []uint, debug bool, file string) {
     if len(allNodes) <= 1 {
         log.Fatalf("No nodes to connect to")
     }
 
     var node = Node {
-        Port: port,
+        port: port,
         hasToken: make(chan struct{}),
         allNodes: allNodes,
         debug: debug,
+        file: file,
     }
 
     // Setting up gRPC server
@@ -70,12 +72,6 @@ func Spawn(port uint, startsWithToken bool, allNodes []uint, debug bool) {
 
     // Setting up gRPC client
     go func() {
-        go func() {
-            if startsWithToken {
-                node.hasToken <- struct{}{}
-            }
-        }()
-
         var opt = grpc.WithTransportCredentials(insecure.NewCredentials())
 
         var conn *grpc.ClientConn
@@ -95,7 +91,13 @@ func Spawn(port uint, startsWithToken bool, allNodes []uint, debug bool) {
 
         var ctx = context.Background()
 
-        log.Printf("Running client at port %d\n", port);
+        log.Printf("Running client at port %d connected to %d\n", port, nextPort)
+
+        go func() {
+            if startsWithToken {
+                node.hasToken <- struct{}{}
+            }
+        }()
 
         for {
             <- node.hasToken
@@ -146,10 +148,10 @@ func findNextPort(port uint, allNodes []uint) uint {
 }
 
 func (node *Node) useToken() {
-    critical.EnterCriticalSection(node.Port)
+    critical.EnterCriticalSection(node.port, node.file)
 
     time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
 
-    critical.LeaveCriticalSection(node.Port)
+    critical.LeaveCriticalSection(node.port)
 }
 
