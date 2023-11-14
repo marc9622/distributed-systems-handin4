@@ -16,11 +16,11 @@ To run the program you can use the following command line arguments:
 
     -first
     
-      Whether this process starts with the token
+      Whether this node starts with the token
       
     -port uint
     
-      The port of this process
+      The port of this node
       
     <ports...>
     
